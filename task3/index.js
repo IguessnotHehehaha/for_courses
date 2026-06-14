@@ -9,23 +9,17 @@ function gcd(a, b) {
     return a;
 }
 
-app.get(`/${emailPath}`, (req, res) => {
-    const x = Number(req.query.x);
-    const y = Number(req.query.y);
+app.get(`/${emailPath}`,(req,res)=>{
+    let{x,y}=req.query
 
-    if (
-        !Number.isInteger(x) ||
-        !Number.isInteger(y) ||
-        x < 1 ||
-        y < 1
-    ) {
-        return res.send("NaN");
-    }
+    if(typeof x!="string"|| typeof y!="string"|| !/^[1-9]\d*$/.test(x)|| !/^[1-9]\d*$/.test(y))
+        return res.send(NaN)
 
-    const lcm = x / gcd(x, y) * y;
+    x=BigInt(x)
+    y=BigInt(y)
 
-    res.send(String(lcm));
-});
+    res.send(String(x/gcd(x,y)*y))
+})
 
 const PORT = process.env.PORT || 3000;
 
