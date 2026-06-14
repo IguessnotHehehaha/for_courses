@@ -13,7 +13,7 @@ app.get(`/${emailPath}`,(req,res)=>{
     let{x,y}=req.query
 
     if(typeof x!="string"|| typeof y!="string"|| !/^[1-9]\d*$/.test(x)|| !/^[1-9]\d*$/.test(y))
-        return res.send(NaN)
+        return res.send("NaN")
 
     x=BigInt(x)
     y=BigInt(y)
