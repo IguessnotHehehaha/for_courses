@@ -58,6 +58,14 @@ export default function Users() {
             else if (action === 'deleteUnverified')
                 await api.delete('/users/unverified')
 
+            const affectedSelf = selected.includes(currentUser?.id)
+            const deletedUnverifiedSelf = action === 'deleteUnverified' && currentUser?.status === 'unverified'
+
+            if (affectedSelf && (action === 'block' || action === 'delete') || deletedUnverifiedSelf) {
+                window.location.href = '/login?reason=blocked'
+                return
+            }
+
             setSelected([])
             await fetchUsers()
             setMessage('Action completed successfully')

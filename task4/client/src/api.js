@@ -9,10 +9,16 @@ api.interceptors.response.use(
     res => res,
     err => {
         const url = err.config?.url || ''
-        const isAuthCall = url.includes('/auth/login') || url.includes('/auth/register') || url.includes('/auth/me')
+        const isAuthCall = url.includes('/auth/login') || url.includes('/auth/register')
+        const isMeCheck = url.includes('/auth/me')
 
-        if (!isAuthCall && (err.response?.status === 401 || err.response?.status === 403)) {
+        if (isMeCheck && (err.response?.status === 401 || err.response?.status === 403)) {
             window.location.href = '/login'
+            return Promise.reject(err)
+        }
+
+        if (!isAuthCall && !isMeCheck && (err.response?.status === 401 || err.response?.status === 403)) {
+            window.location.href = '/login?reason=blocked'
         }
 
         return Promise.reject(err)

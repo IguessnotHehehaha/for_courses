@@ -13,6 +13,8 @@ export default function Login() {
     useEffect(() => {
         if (searchParams.get('verified') === 'true')
             setSuccess('Email verified successfully! You can now log in.')
+        if (searchParams.get('reason') === 'blocked')
+            setError('Your account has been blocked or deleted. Please contact an administrator.')
     }, [])
 
     async function handleSubmit(e) {
