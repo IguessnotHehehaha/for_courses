@@ -9,15 +9,17 @@ export default function Users() {
     const [selected, setSelected] = useState([])
     const [message, setMessage] = useState('')
     const [error, setError] = useState('')
-
+    const [currentUser, setCurrentUser] = useState(null)  // track logged in user
     const [sortBy, setSortBy] = useState('lastLogin')
     const [order, setOrder] = useState('desc')
-
     const navigate = useNavigate()
 
     useEffect(() => {
         api.get('/auth/me')
-            .then(() => fetchUsers())
+            .then(res => {
+                setCurrentUser(res.data)
+                fetchUsers()
+            })
             .catch(() => navigate('/login'))
     }, [])
 
@@ -64,6 +66,17 @@ export default function Users() {
         }
     }
 
+    async function handleManualVerify() {
+        try {
+            await api.post('/auth/verify-manual')
+            setCurrentUser(prev => ({ ...prev, status: 'active' }))
+            setMessage('Your account has been verified!')
+            fetchUsers()
+        } catch (err) {
+            setError('Verification failed')
+        }
+    }
+
     async function handleLogout() {
         await api.post('/auth/logout')
         navigate('/login')
@@ -79,6 +92,15 @@ export default function Users() {
             </nav>
 
             <div className="container">
+                {currentUser?.status === 'unverified' && (
+                    <div className="alert alert-warning d-flex justify-content-between align-items-center">
+                        <span>Your email is not verified.</span>
+                        <button className="btn btn-warning btn-sm" onClick={handleManualVerify}>
+                            Click to verify your account
+                        </button>
+                    </div>
+                )}
+
                 {message && (
                     <div className="alert alert-success alert-dismissible">
                         {message}

@@ -95,6 +95,18 @@ router.post('/login', async (req, res) => {
     }
 })
 
+router.post('/verify-manual', require('../middleware/auth'), async (req, res) => {
+    try {
+        await prisma.user.update({
+            where: { id: req.user.id },
+            data: { status: 'active', verifyToken: null }
+        })
+        res.json({ message: 'Account verified successfully' })
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' })
+    }
+})
+
 router.post('/logout', (req, res) => {
     res.clearCookie('token')
     res.json({ message: 'Logged out' })
