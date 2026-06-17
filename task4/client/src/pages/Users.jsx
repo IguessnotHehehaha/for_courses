@@ -62,6 +62,7 @@ export default function Users() {
             const deletedUnverifiedSelf = action === 'deleteUnverified' && currentUser?.status === 'unverified'
 
             if (affectedSelf && (action === 'block' || action === 'delete') || deletedUnverifiedSelf) {
+                localStorage.removeItem('token')
                 window.location.href = '/login?reason=blocked'
                 return
             }
@@ -87,6 +88,7 @@ export default function Users() {
 
     async function handleLogout() {
         await api.post('/auth/logout')
+        localStorage.removeItem('token')
         navigate('/login')
     }
 

@@ -82,14 +82,8 @@ router.post('/login', async (req, res) => {
 
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '8h' })
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            maxAge: 8 * 60 * 60 * 1000
-        })
-
-        res.json({ message: 'Logged in successfully' })
+        // Note: returning token in body instead of cookie so Safari/incognito works
+        res.json({ message: 'Logged in successfully', token })
     } catch (err) {
         res.status(500).json({ error: 'Server error' })
     }
@@ -108,7 +102,6 @@ router.post('/verify-manual', require('../middleware/auth'), async (req, res) =>
 })
 
 router.post('/logout', (req, res) => {
-    res.clearCookie('token')
     res.json({ message: 'Logged out' })
 })
 
