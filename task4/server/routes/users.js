@@ -28,10 +28,17 @@ router.get('/', async (req, res) => {
 router.patch('/block', async (req, res) => {
     const { ids } = req.body
     try {
-        await prisma.user.updateMany({
-            where: { id: { in: ids } },
-            data: { status: 'blocked' }
-        })
+        const users = await prisma.user.findMany({ where: { id: { in: ids } } })
+
+        await Promise.all(users.map(user =>
+            prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    previousStatus: user.status,
+                    status: 'blocked'
+                }
+            })
+        ))
         res.json({ message: 'Users blocked successfully' })
     } catch (err) {
         res.status(500).json({ error: 'Failed to block users' })
@@ -41,10 +48,14 @@ router.patch('/block', async (req, res) => {
 router.patch('/unblock', async (req, res) => {
     const { ids } = req.body
     try {
-        await prisma.user.updateMany({
-            where: { id: { in: ids } },
-            data: { status: 'active' }
-        })
+        // Note: restore each user's status to what it was before being blocked
+        await Promise.all(ids.map(async id => {
+            const user = await prisma.user.findUnique({ where: { id } })
+            return prisma.user.update({
+                where: { id },
+                data: { status: user.previousStatus }
+            })
+        }))
         res.json({ message: 'Users unblocked successfully' })
     } catch (err) {
         res.status(500).json({ error: 'Failed to unblock users' })
