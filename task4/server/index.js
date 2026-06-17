@@ -14,13 +14,6 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
-app.options('*', cors({
-    origin: process.env.CLIENT_URL,
-    credentials: false,
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}))
-
 app.use(express.json())
 
 app.use('/api/auth', authRoutes)
