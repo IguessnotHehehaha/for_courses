@@ -34,7 +34,7 @@ router.patch('/block', async (req, res) => {
             prisma.user.update({
                 where: { id: user.id },
                 data: {
-                    previousStatus: user.status,
+                    previousStatus: user.status !== 'blocked' ? user.status : user.previousStatus,
                     status: 'blocked'
                 }
             })
@@ -48,7 +48,6 @@ router.patch('/block', async (req, res) => {
 router.patch('/unblock', async (req, res) => {
     const { ids } = req.body
     try {
-        // Note: restore each user's status to what it was before being blocked
         await Promise.all(ids.map(async id => {
             const user = await prisma.user.findUnique({ where: { id } })
             return prisma.user.update({
