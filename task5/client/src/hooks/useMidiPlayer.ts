@@ -154,7 +154,6 @@ export function useMidiPlayer(midiUrl: string | null) {
             const drumNotes: any[] = []
 
             midi.tracks.forEach(track => {
-                // 🎯 channel 9 = drums
                 if (track.channel === 9) {
                     track.notes.forEach(n => {
                         drumNotes.push({
