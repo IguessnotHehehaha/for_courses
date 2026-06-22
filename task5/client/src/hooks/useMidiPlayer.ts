@@ -22,7 +22,9 @@ export function useMidiPlayer(midiUrl: string | null) {
     })
 
     const synthsRef = useRef<Tone.PolySynth[]>([])
+    const drumSynthsRef = useRef<Tone.ToneAudioNode[]>([])
     const nodesRef = useRef<Tone.ToneAudioNode[]>([])
+
     const partsRef = useRef<Tone.Part[]>([])
     const rafRef = useRef<number>(0)
     const midiBufferRef = useRef<ArrayBuffer | null>(null)
@@ -40,9 +42,13 @@ export function useMidiPlayer(midiUrl: string | null) {
 
         partsRef.current.forEach(p => p.dispose())
         synthsRef.current.forEach(s => s.dispose())
+        drumSynthsRef.current.forEach(s => {
+            try { s.dispose() } catch {}
+        })
 
         partsRef.current = []
         synthsRef.current = []
+        drumSynthsRef.current = []
 
         Object.values(chainRef.current).forEach(n => n?.dispose())
         chainRef.current = {}
@@ -118,6 +124,7 @@ export function useMidiPlayer(midiUrl: string | null) {
             const vol = new Tone.Volume(
                 state.volume <= 0 ? -Infinity : 20 * Math.log10(state.volume)
             ).toDestination()
+
             volumeNodeRef.current = vol
 
             const eq = new Tone.EQ3({
@@ -142,13 +149,36 @@ export function useMidiPlayer(midiUrl: string | null) {
             reverb.connect(comp)
 
             chainRef.current = { eq, comp, reverb }
-
             nodesRef.current.push(eq, comp, reverb)
 
-            midi.tracks.forEach(track => {
-                if (!track.notes.length && !track.controlChanges) return
+            const drumNotes: any[] = []
 
-                const synth = new Tone.PolySynth(Tone.Synth).connect(reverb)
+            midi.tracks.forEach(track => {
+                // 🎯 channel 9 = drums
+                if (track.channel === 9) {
+                    track.notes.forEach(n => {
+                        drumNotes.push({
+                            time: n.time,
+                            note: n.name,
+                            duration: 0.15,
+                            velocity: Math.max(n.velocity, 0.2),
+                        })
+                    })
+                    return
+                }
+
+                if (!track.notes.length) return
+
+                const synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: 'triangle' },
+                    envelope: {
+                        attack: 0.01,
+                        decay: 0.1,
+                        sustain: 0.7,
+                        release: 1.2,
+                    },
+                    volume: -6,
+                }).connect(reverb)
 
                 synthsRef.current.push(synth)
 
@@ -171,6 +201,33 @@ export function useMidiPlayer(midiUrl: string | null) {
                 part.start(0)
                 partsRef.current.push(part)
             })
+
+            if (drumNotes.length > 0) {
+                const drumSynth = new Tone.MembraneSynth({
+                    pitchDecay: 0.05,
+                    octaves: 8,
+                    envelope: {
+                        attack: 0.001,
+                        decay: 0.2,
+                        sustain: 0,
+                        release: 0.1,
+                    },
+                }).connect(reverb)
+
+                drumSynthsRef.current.push(drumSynth)
+
+                const drumPart = new Tone.Part((time, value: any) => {
+                    drumSynth.triggerAttackRelease(
+                        value.note,
+                        value.duration,
+                        time,
+                        value.velocity
+                    )
+                }, drumNotes)
+
+                drumPart.start(0)
+                partsRef.current.push(drumPart)
+            }
 
             Tone.getTransport().start()
 
