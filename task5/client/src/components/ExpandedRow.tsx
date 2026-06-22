@@ -7,7 +7,8 @@ interface Props {
 }
 
 export default function ExpandedRow({ song }: Props) {
-    const coverUrl = `${API_BASE}/api/cover?seed=${song.index}&title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}`
+    const seed = useStore(s => s.seed)
+    const coverUrl = `${API_BASE}/api/cover?seed=${seed}_${song.index}&title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}`
     const setActiveSong = useStore(s => s.setActiveSong)
 
     return (

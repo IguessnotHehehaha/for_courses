@@ -136,10 +136,43 @@ export function generateMidi(seed: string, title: string): Buffer {
         }))
     }
 
+    const percTrack = new MidiWriter.Track()
+    percTrack.setTempo(tempo)
+    percTrack.addEvent(new MidiWriter.ProgramChangeEvent({ instrument: 115 }))
+
+    for (let bar = 0; bar < bars; bar++) {
+        percTrack.addEvent(new MidiWriter.NoteEvent({
+            pitch: ['G5'],
+            duration: '4',
+            velocity: 50 + Math.floor(rng() * 20),
+        }))
+        percTrack.addEvent(new MidiWriter.NoteEvent({
+            pitch: ['C5'],
+            duration: '4',
+            velocity: 40 + Math.floor(rng() * 15),
+        }))
+        percTrack.addEvent(new MidiWriter.NoteEvent({
+            pitch: ['G5'],
+            duration: '4',
+            velocity: 45 + Math.floor(rng() * 20),
+        }))
+        percTrack.addEvent(new MidiWriter.NoteEvent({
+            pitch: ['C5'],
+            duration: '8',
+            velocity: 35,
+        }))
+        percTrack.addEvent(new MidiWriter.NoteEvent({
+            pitch: ['C5'],
+            duration: '8',
+            velocity: 30,
+        }))
+    }
+
     const writer = new MidiWriter.Writer([
         melodyTrack,
         chordTrack,
-        bassTrack
+        bassTrack,
+        percTrack
     ])
 
     const base64 = writer.base64()

@@ -10,7 +10,8 @@ interface Props {
 }
 
 export default function SongModal({ song, onClose }: Props) {
-    const coverUrl = `${API_BASE}/api/cover?seed=${song.index}&title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}`
+    const seed = useStore(state => state.seed)
+    const coverUrl = `${API_BASE}/api/cover?seed=${seed}_${song.index}&title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}`
     const setActiveSong = useStore(s => s.setActiveSong)
 
     useEffect(() => {
