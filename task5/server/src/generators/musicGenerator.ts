@@ -163,36 +163,7 @@ export function generateMidi(seed: string, title: string): Buffer {
     }
 
 
-    const drumTrack = new MidiWriter.Track()
-    drumTrack.setTempo(tempo)
-
-    const kickNote = 'C2'
-    const snareNote = 'D2'
-    const hihatNote = 'F#2'
-
-    for (let bar = 0; bar < bars; bar++) {
-        drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [kickNote], duration: '4', velocity: 90, channel: 10 }))
-        drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [hihatNote], duration: '8', velocity: 60, channel: 10 }))
-        drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [hihatNote], duration: '8', velocity: 50, channel: 10 }))
-
-        drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [snareNote], duration: '4', velocity: 80, channel: 10 }))
-        drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [hihatNote], duration: '8', velocity: 60, channel: 10 }))
-        drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [hihatNote], duration: '8', velocity: 50, channel: 10 }))
-
-        drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [kickNote], duration: '4', velocity: 85, channel: 10 }))
-        drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [hihatNote], duration: '8', velocity: 60, channel: 10 }))
-        drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [hihatNote], duration: '8', velocity: 50, channel: 10 }))
-
-        drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [snareNote], duration: '4', velocity: 80, channel: 10 }))
-        if (rng() > 0.7) {
-            drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [snareNote], duration: '8', velocity: 70, channel: 10 }))
-            drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [snareNote], duration: '8', velocity: 65, channel: 10 }))
-        } else {
-            drumTrack.addEvent(new MidiWriter.NoteEvent({ pitch: [hihatNote], duration: '4', velocity: 55, channel: 10 }))
-        }
-    }
-
-    const writer = new MidiWriter.Writer([melodyTrack, chordTrack, bassTrack, drumTrack])
+    const writer = new MidiWriter.Writer([melodyTrack, chordTrack, bassTrack])
     const base64 = writer.base64()
     return Buffer.from(base64, 'base64')
 }
