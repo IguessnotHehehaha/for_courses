@@ -146,40 +146,27 @@ export function useMidiPlayer(midiUrl: string | null) {
             nodesRef.current.push(eq, comp, reverb)
 
             midi.tracks.forEach(track => {
-                if (!track.notes.length) return
+                if (!track.notes.length && !track.controlChanges) return
 
-                const synth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: {
-                        type: 'triangle',
-                    },
-                    envelope: {
-                        attack: 0.01,
-                        decay: 0.1,
-                        sustain: 0.7,
-                        release: 1.2,
-                    },
-                    volume: -6,
-                })
+                const synth = new Tone.PolySynth(Tone.Synth).connect(reverb)
 
-                synth.connect(reverb)
                 synthsRef.current.push(synth)
 
-                const part = new Tone.Part(
-                    (time, value: any) => {
-                        synth.triggerAttackRelease(
-                            value.note,
-                            value.duration,
-                            time,
-                            value.velocity
-                        )
-                    },
-                    track.notes.map(n => ({
-                        time: n.time,
-                        note: n.name,
-                        duration: n.duration,
-                        velocity: Math.max(n.velocity, 0.05),
-                    }))
-                )
+                const notes = track.notes.map(n => ({
+                    time: n.time,
+                    note: n.name,
+                    duration: n.duration,
+                    velocity: Math.max(n.velocity, 0.05),
+                }))
+
+                const part = new Tone.Part((time, value: any) => {
+                    synth.triggerAttackRelease(
+                        value.note,
+                        value.duration,
+                        time,
+                        value.velocity
+                    )
+                }, notes)
 
                 part.start(0)
                 partsRef.current.push(part)
