@@ -10,7 +10,6 @@ module.exports = async (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-        // Nota bene: always re-check DB so blocked/deleted users are rejected immediately
         const user = await prisma.user.findUnique({ where: { id: decoded.id } })
 
         if (!user || user.status === 'blocked') {
