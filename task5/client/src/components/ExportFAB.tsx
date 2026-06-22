@@ -4,6 +4,7 @@ import { saveAs } from 'file-saver'
 import type { Song } from '../types'
 import { renderMidiToBlob } from '../utils/renderMidi'
 import { LoadingIcon, DownloadIcon } from './icons'
+import {API_BASE} from "../api.ts";
 
 
 interface Props {
@@ -31,7 +32,7 @@ export default function ExportFAB({ songs }: Props) {
             if (abortRef.current) break
 
             const song = songs[i]
-            const midiUrl = `/api/music?seed=${song.index}&title=${encodeURIComponent(song.title)}`
+            const midiUrl = `${API_BASE}/api/music?seed=${song.index}&title=${encodeURIComponent(song.title)}`
             const blob = await renderMidiToBlob(midiUrl)
 
             if (abortRef.current) break

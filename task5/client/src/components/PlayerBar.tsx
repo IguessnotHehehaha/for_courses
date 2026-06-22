@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useStore } from '../store/useStore'
 import { useMidiPlayer } from '../hooks/useMidiPlayer'
 import {PlayIcon, StopIcon, LoadingIcon, VolumeIcon, CancelIcon} from './icons'
+import {API_BASE} from "../api.ts";
 
 
 function formatTime(seconds: number): string {
@@ -15,7 +16,7 @@ export default function PlayerBar() {
     const setActiveSong = useStore(s => s.setActiveSong)
 
     const midiUrl = activeSong
-        ? `/api/music?seed=${activeSong.index}&title=${encodeURIComponent(activeSong.title)}`
+        ? `${API_BASE}/api/music?seed=${activeSong.index}&title=${encodeURIComponent(activeSong.title)}`
         : null
 
     const { play, stop, seekTo, setVolume, state } = useMidiPlayer(midiUrl)
@@ -26,7 +27,7 @@ export default function PlayerBar() {
 
     if (!activeSong) return null
 
-    const coverUrl = `/api/cover?seed=${activeSong.index}&title=${encodeURIComponent(activeSong.title)}&artist=${encodeURIComponent(activeSong.artist)}`
+    const coverUrl = `${API_BASE}/api/cover?seed=${activeSong.index}&title=${encodeURIComponent(activeSong.title)}&artist=${encodeURIComponent(activeSong.artist)}`
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-900 border-t border-gray-800 px-4 py-3 flex items-center gap-4">

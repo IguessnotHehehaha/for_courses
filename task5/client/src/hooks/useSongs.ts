@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import type {Song, SongsParams} from '../types'
+import {API_BASE} from "../api.ts";
 
 const PAGE_SIZE = 20
 
 async function fetchSongs(params: SongsParams): Promise<Song[]> {
-    const { data } = await axios.get('/api/songs', {
+    const { data } = await axios.get(`${API_BASE}/api/songs`, {
         params: {
             seed: params.seed,
             page: params.page,

@@ -5,7 +5,7 @@ export async function renderMidiToBlob(midiUrl: string): Promise<Blob> {
     const response = await fetch(midiUrl)
     const arrayBuffer = await response.arrayBuffer()
     const midi = new Midi(arrayBuffer)
-    const duration = midi.duration + 2 // extra tail for reverb
+    const duration = midi.duration + 2
 
     const buffer = await Tone.Offline(({ transport }) => {
         const bpm = midi.header.tempos[0]?.bpm ?? 120

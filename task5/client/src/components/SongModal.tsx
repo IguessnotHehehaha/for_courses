@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import type { Song } from '../types'
 import { useStore } from '../store/useStore'
+import {API_BASE} from "../api.ts";
 
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 }
 
 export default function SongModal({ song, onClose }: Props) {
-    const coverUrl = `/api/cover?seed=${song.index}&title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}`
+    const coverUrl = `${API_BASE}/api/cover?seed=${song.index}&title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}`
     const setActiveSong = useStore(s => s.setActiveSong)
 
     useEffect(() => {

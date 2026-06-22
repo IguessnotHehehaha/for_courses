@@ -1,5 +1,6 @@
 import type {Song} from '../types'
 import { PlayIcon } from './icons'
+import {API_BASE} from "../api.ts";
 
 interface Props {
     song: Song,
@@ -7,7 +8,7 @@ interface Props {
 }
 
 export default function SongCard({song, onClick}: Props) {
-    const coverUrl = `/api/cover?seed=${song.index}&title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}`
+    const coverUrl = `${API_BASE}/api/cover?seed=${song.index}&title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}`
 
     return (
         <div
