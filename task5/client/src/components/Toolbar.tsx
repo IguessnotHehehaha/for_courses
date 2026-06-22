@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useStore } from '../store/useStore'
+import {API_BASE} from "../api.ts";
 
 interface Locale {
     value: string
@@ -16,7 +17,7 @@ export default function Toolbar() {
     } = useStore()
 
     useEffect(() => {
-        axios.get('/api/locales').then(res => setLocales(res.data))
+        axios.get(`${API_BASE}/api/locales`).then(res => setLocales(res.data))
     }, [])
 
     return (
