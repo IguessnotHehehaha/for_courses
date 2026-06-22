@@ -73,27 +73,34 @@ export function generateMidi(seed: string, title: string): Buffer {
 
     const durations = ['4', '8', '8'] as const
 
+    let lastPitch = scaleNotes[Math.floor(rng() * scaleNotes.length)]
+
     for (let bar = 0; bar < bars; bar++) {
         const chordDegree = progression[bar % progression.length]
-
-        const notesInBar = 2 + Math.floor(rng() * 2)
+        const chord = getChordNotes(root, scale, chordDegree, octave).map(clampSafe)
+        const notesInBar = 3 + Math.floor(rng() * 2)
 
         for (let i = 0; i < notesInBar; i++) {
-            const useChord = rng() > 0.3
+            const nearby = scaleNotes.filter(n => Math.abs(n - lastPitch) <= 5)
+            const pool = nearby.length > 0 ? nearby : scaleNotes
 
             let pitch: number
-
-            if (useChord) {
-                const chord = getChordNotes(root, scale, chordDegree, octave).map(clampSafe)
+            if (i === 0) {
                 pitch = chord[Math.floor(rng() * chord.length)]
             } else {
-                pitch = scaleNotes[Math.floor(rng() * scaleNotes.length)]
+                pitch = rng() > 0.35
+                    ? chord[Math.floor(rng() * chord.length)]
+                    : pool[Math.floor(rng() * pool.length)]
             }
+
+            lastPitch = pitch
 
             melodyTrack.addEvent(new MidiWriter.NoteEvent({
                 pitch: [midiNoteToName(pitch)],
                 duration: durations[Math.floor(rng() * durations.length)],
-                velocity: 60 + Math.floor(rng() * 25), // controlled velocity
+                velocity: i === 0
+                    ? 70 + Math.floor(rng() * 15)
+                    : 55 + Math.floor(rng() * 20),
             }))
         }
     }
@@ -104,17 +111,41 @@ export function generateMidi(seed: string, title: string): Buffer {
 
     for (let bar = 0; bar < bars; bar++) {
         const chordDegree = progression[bar % progression.length]
+        const chord = getChordNotes(root, scale, chordDegree, octave - 1).map(clampSafe)
+        const velocity = 38 + Math.floor(rng() * 12)
+        const pattern = Math.floor(rng() * 3)
 
-        const chord = getChordNotes(root, scale, chordDegree, octave - 1)
-            .map(clampSafe)
-
-        const velocity = 45 + Math.floor(rng() * 15)
-
-        chordTrack.addEvent(new MidiWriter.NoteEvent({
-            pitch: chord.map(midiNoteToName),
-            duration: '2',
-            velocity,
-        }))
+        if (pattern === 0) {
+            chordTrack.addEvent(new MidiWriter.NoteEvent({
+                pitch: chord.map(midiNoteToName),
+                duration: '1',
+                velocity,
+            }))
+        } else if (pattern === 1) {
+            chordTrack.addEvent(new MidiWriter.NoteEvent({
+                pitch: chord.map(midiNoteToName),
+                duration: '2',
+                velocity,
+            }))
+            chordTrack.addEvent(new MidiWriter.NoteEvent({
+                pitch: chord.map(midiNoteToName),
+                duration: '2',
+                velocity: velocity - 5,
+            }))
+        } else {
+            chord.forEach((note, i) => {
+                chordTrack.addEvent(new MidiWriter.NoteEvent({
+                    pitch: [midiNoteToName(note)],
+                    duration: '4',
+                    velocity: velocity - i * 3,
+                }))
+            })
+            chordTrack.addEvent(new MidiWriter.NoteEvent({
+                pitch: [midiNoteToName(chord[0])],
+                duration: '4',
+                velocity: velocity - 8,
+            }))
+        }
     }
 
 
