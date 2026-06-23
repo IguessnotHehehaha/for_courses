@@ -63,9 +63,15 @@ async function drawHeroIcon(ctx: SKRSContext2D, size: number, iconName: string, 
         throw new Error(`Cover icon not found: ${iconPath}`)
     }
 
-    const svg = await fs.readFile(iconPath)
+    // console.log(iconPath)
+    // console.log(await fs.stat(iconPath))
 
-    const image = await loadImage(svg)
+    const image = await loadImage(iconPath)
+
+    // console.log(
+    //     image.width,
+    //     image.height
+    // )
 
     const iconSize = size * 0.45
 
